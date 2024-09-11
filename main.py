@@ -1,13 +1,10 @@
+# usage: python main.py [-h] [--save_to_file SAVE_TO_FILE] font_path
+
+import os
+import argparse
 from fontTools.ttLib import TTFont
 
-# Load the font file
-FONT_PATH = (
-    "c3e0142c-3a7e-4be9-bf72-7e183460f273.woff"  # Replace with your font file path
-)
-font = TTFont(FONT_PATH)
 
-
-# Extracting font metadata
 def _get_font_metadata(font):
     metadata = {}
 
@@ -33,12 +30,46 @@ def _get_font_metadata(font):
 
 
 def _write_to_file(metadata):
+    print("Writing metadata to file")
     with open("font_metadata.txt", "w", encoding="utf-8") as f:
         for name_id, val in metadata.items():
             f.write(f"NameID {name_id}: {val}\n")
 
 
-meta = _get_font_metadata(font)
-_write_to_file(meta)
-# for name_id, val in meta.items():
-#     print(f"NameID {name_id}: {val}")
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("font_path", help="Path to font file")
+    parser.add_argument(
+        "--save_to_file",
+        type=int,
+        default=False,
+        help="Save the metadata to a file",
+    )
+
+    args = parser.parse_args()
+
+    if not args.font_path:
+        print("Please provide a path to the font file")
+        return
+
+    if not os.path.exists(args.font_path):
+        print("Font file does not exist")
+        return
+
+    font_path = args.font_path
+    save_to_file = args.save_to_file
+
+    print("save_to_file: ", save_to_file)
+
+    font = TTFont(font_path)
+    metadata = _get_font_metadata(font)
+    print(metadata)
+
+    if save_to_file == 1:
+        _write_to_file(metadata)
+
+    print("Font metadata extracted successfully")
+
+
+if __name__ == "__main__":
+    main()
